@@ -1,19 +1,21 @@
 CC = gcc
-Flags = -Wall -Werror -g
-OBJFLAG = -c
+CFLAGS = -Wall -Werror -g -IIncludes/
+OP = mysort
 
+vpath %.c Source/
+SRC = sort_algorithm.c main.c
 
-mysort : main.o sort_algorithm.o  #dependencies
+OBJ :=$(SRC:.c=.o)
 
-	$(CC) -Wall -Werror main.o sort_algorithm.o -o mysort
+mysort : $(OBJ)  #dependencies
 
-sort_algorithm.o: sort_algorithm.c sort_algorithm.h 
-		$(CC) $(Flags) $(OBJFLAG) sort_algorithm.c
+	$(CC) $(CFLAGS) -o $(OP) $(OBJ) 
 
-main.o: main.c main.h sort_algorithm.o
-		$(CC) $(Flags) $(OBJFLAG) main.c
+#sort_algorithm.o: sort_algorithm.c sort_algorithm.h 
+#		$(CC) $(Flags) $(OBJFLAG) sort_algorithm.c
 
-
+#main.o: main.c main.h sort_algorithm.o
+#		$(CC) $(Flags) $(OBJFLAG) main.c
 
 clean: 
 	rm -f mysort *.o

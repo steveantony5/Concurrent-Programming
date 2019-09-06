@@ -6,7 +6,7 @@
 /**********************************
         Main Function
 **********************************/
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     int c;
 	FILE *input, *output;
@@ -19,6 +19,14 @@ int main(int argc, char **argv)
     char buffer[20];
     int32_t *input_array;
 
+    if(argv[1]== NULL) 
+    {
+        printf("Please provide arguments\n");
+        printf("./mysort [Sourcefilename] -o [outputfilename]\nSource filename mandatory\n");
+        exit(1);
+
+    }
+
     //long option for command line arguments
     static struct option longopts[] =
     {
@@ -30,7 +38,8 @@ int main(int argc, char **argv)
     if(strcmp(argv[1],"-o") == 0 )
     {
         //if not provided, go with the default input file
-        strcpy(inputfilename,"input.txt");
+        printf("./mysort [Sourcefilename] -o [outputfilename]\nSource filename mandatory\n");
+        exit(1);
     }
     else
     {
@@ -50,6 +59,9 @@ int main(int argc, char **argv)
                 strcpy(outputfilename,optarg);
                 arg_filename = 1;
                 break;
+            default:
+                printf("No arguments provided\n");
+                exit(1);
         }
     }
 
@@ -58,8 +70,8 @@ int main(int argc, char **argv)
 	input = fopen(inputfilename,"r");
 	if(input == NULL)
 	{
-		printf("Couldn't open file\n");
-		return -1;
+		printf("Couldn't open file as it doesn't exists\n");
+		exit(1);
 	}
 
 	struct stat st;
