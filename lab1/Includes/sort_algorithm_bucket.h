@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <getopt.h>
 #include <pthread.h>
 #include <vector>
 #include <cmath>

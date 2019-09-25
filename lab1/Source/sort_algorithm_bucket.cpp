@@ -23,7 +23,7 @@ int32_t max_value(int32_t input_array[],int32_t total_elts)
     return  max_value;
 }
 
-int32_t bucket_divider(int32_t arr[], int32_t size, int32_t threads) 
+int32_t bucket_divider(int32_t arr[], int32_t size, int32_t threads)
 {
   //variables
   int32_t max_val =0 , bucket_total = 0 , divider_l = 0;
@@ -40,9 +40,9 @@ int32_t bucket_divider(int32_t arr[], int32_t size, int32_t threads)
   return divider_l;
 }
 
-// thread function for multi-threading 
-void* bucket_sort(void* arg) 
-{ 
+// thread function for multi-threading
+void* bucket_sort(void* arg)
+{
     struct thread_args_bucket *args = (struct thread_args_bucket *) arg;
     int32_t id = args->local_thread_id;
 
@@ -58,7 +58,7 @@ void* bucket_sort(void* arg)
 
     int j;
 
-    for(int i = 0; i < args->total_elts; i++) 
+    for(int i = 0; i < args->total_elts; i++)
     {
 
         j = floor( (args->input_array)[i] / divider_bucket );

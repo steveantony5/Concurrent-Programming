@@ -2,8 +2,6 @@
             Includes
 ***********************************/
 #include "../Includes/main.h"
-#include <stdlib.h>
-#include <unistd.h>
 
 using namespace std;
 
@@ -24,8 +22,8 @@ pthread_mutex_t lock;
 int main(int argc, char *argv[])
 {
     int c;
-	FILE *input, *output;
-    	
+    FILE *input, *output;
+
     size_t len = 0;
     char outputfilename[20];
     char inputfilename[20];
@@ -36,7 +34,7 @@ int main(int argc, char *argv[])
 
     char buffer[20];
 
-    if(argv[1]== NULL) 
+    if(argv[1]== NULL)
     {
         printf("Please provide arguments\n");
         printf("./mysort [Sourcefilename] -o [outputfilename]\nSource filename mandatory\n");
@@ -44,23 +42,23 @@ int main(int argc, char *argv[])
     }
 
     strcpy(inputfilename,argv[1]);
-    
+
     static struct option long_options[] =
     {
       /* These options set a flag. */
 
-      
+
       {"name",no_argument,0,'n'},
       /* These options don’t set a flag.
          We distinguish them by their indices. */
-      {"object",no_argument,0, 'o'},
-      {"threads", no_argument,0,'t'},
+      {"object",optional_argument,0, 'o'},
+      {"threads", optional_argument,0,'t'},
       {"algs", required_argument,0,'a'},
       {0, 0, 0, 0}
     };
-    
+
     //parsing command line arguments
-    while ((c = getopt_long (argc, argv, "nota:", long_options, 0)) != -1)
+    while ((c = getopt_long (argc, argv, "n:o:t:a:", long_options, 0)) != -1)
     {
         switch (c)
         {
@@ -70,14 +68,12 @@ int main(int argc, char *argv[])
                 exit(1);
                 break;
             case 'o':
-                printf("option -o\n");
-                strcpy(outputfilename,argv[3]);
+                strcpy(outputfilename,optarg);
                 printf ("outputfilename = %s\n",outputfilename);
                 arg_filename = 1;
                 break;
             case 't':
-                printf("option -t \n");
-                total_threads = atoi(argv[5]);
+                total_threads = atoi(optarg);
                 printf("Threads = %d\n",total_threads);
                 break;
             case 'a':
@@ -87,11 +83,11 @@ int main(int argc, char *argv[])
                 if(strcmp(algos,"bucket") == 0)
                 {
                     bucket = 1;
-                }    
+                }
                 else if (strcmp(algos,"fj") == 0)
                 {
                     fj = 1;
-                }    
+                }
 
                 break;
             default:
@@ -105,23 +101,23 @@ int main(int argc, char *argv[])
 
     printf ("inputfilename = %s\n",inputfilename);
 
-	input = fopen(inputfilename,"r");
-	if(input == NULL)
-	{
-		printf("Couldn't open file as it doesn't exists\n");
-		exit(1);
-	}
+    input = fopen(inputfilename,"r");
+    if(input == NULL)
+    {
+        printf("Couldn't open file as it doesn't exists\n");
+        exit(1);
+    }
 
-	struct stat st;
-    if(stat(inputfilename, &st) != 0) 
+    struct stat st;
+    if(stat(inputfilename, &st) != 0)
     {
         return 0;
     }
 
     char * line = NULL;
-	//find the number of integers in the input file
-	while((getline(&line, &len, input)) != -1)
-	{
+    //find the number of integers in the input file
+    while((getline(&line, &len, input)) != -1)
+    {
         total_elts++;
 
     }
@@ -138,7 +134,7 @@ int main(int argc, char *argv[])
     char * line_1 = NULL;
     //store the elements in an integer array
     while((getline(&line_1, &len, input)) != -1)
-	{
+    {
         input_array[index] = atoi(line_1);
         index++;
     }
@@ -147,7 +143,7 @@ int main(int argc, char *argv[])
 
     printf("Unsorted array formed from input file\n");
 
-	printf("Total elements %d\n",total_elts);
+    printf("Total elements %d\n",total_elts);
     printf("Total threads %d\n",total_threads);
     struct thread_task task[total_threads];
 
@@ -155,10 +151,10 @@ int main(int argc, char *argv[])
     {
 
         printf("FORK JOIN MODEL : Merge sort\n");
-        for (int i = 0; i < total_threads; i++) 
+        for (int i = 0; i < total_threads; i++)
         {
-            // calculating low and high 
-            int32_t low = i * (total_elts / total_threads); 
+            // calculating low and high
+            int32_t low = i * (total_elts / total_threads);
             int32_t high;
 
             if(i == (total_threads - 1))
@@ -185,7 +181,7 @@ int main(int argc, char *argv[])
         ****************************************************/
         pthread_t threads[total_threads];
 
-        for (int i = 0; i < total_threads; i++) 
+        for (int i = 0; i < total_threads; i++)
         {
             task[i].local_thread_id = i+1;
             if(!(pthread_create(&threads[i], NULL, merge_Sort, (void*)&task[i]) == 0))
@@ -196,8 +192,8 @@ int main(int argc, char *argv[])
             //printf("creating thread %d\n",i);
         }
 
-        // joining all threads 
-        for (int i = 0; i < total_threads; i++) 
+        // joining all threads
+        for (int i = 0; i < total_threads; i++)
         {
             pthread_join(threads[i], NULL);
             //printf("Joining thread %d\n",i);
@@ -205,12 +201,12 @@ int main(int argc, char *argv[])
 
         for (int i = 1; i < total_threads; i++)
         {
-            
+
             int mid = task[i-1].tsk_high ;
 
             //printf("merging mid %d high %d\n", mid,task[i].tsk_high);
             merge(task[i].input_array,0, mid, task[i].tsk_high);
-            
+
         }
         clock_gettime(CLOCK_MONOTONIC,&end_time);
 
@@ -225,8 +221,8 @@ int main(int argc, char *argv[])
     if(bucket == 1)
     {
         printf("BUCKET sort\n");
-        
-        
+
+
 
         struct thread_args_bucket arg[total_threads];
 
@@ -247,7 +243,7 @@ int main(int argc, char *argv[])
         ****************************************************/
         pthread_t threads[total_threads];
 
-        for (int32_t i = 0; i < total_threads; i++) 
+        for (int32_t i = 0; i < total_threads; i++)
         {
             arg[i].divider = divider;
             arg[i].input_array = input_array;
@@ -264,11 +260,11 @@ int main(int argc, char *argv[])
 
         }
 
-        
 
 
-        // joining all threads 
-        for (int32_t i = 0; i < total_threads; i++) 
+
+        // joining all threads
+        for (int32_t i = 0; i < total_threads; i++)
         {
             pthread_join(threads[i], NULL);
             //printf("Joining thread %d\n",i);
@@ -296,10 +292,10 @@ int main(int argc, char *argv[])
         double elapsed_s = ((double)elapsed_ns)/1000000000.0;
         printf("Elapsed (s): %lf\n",elapsed_s);
 
-       
+
     }
 
-	printf("**********Sorted array*****************\n");
+    printf("**********Sorted array*****************\n");
 
     //if output file name is provided as command line argument
     if(arg_filename == 1)
@@ -312,8 +308,8 @@ int main(int argc, char *argv[])
         }
     }
 
-	for(int32_t j=0; j< total_elts; j++)
-	{   
+    for(int32_t j=0; j< total_elts; j++)
+    {
         //if output file is provided, store the sorted integers in the output file
         if(arg_filename == 1)
         {
@@ -326,14 +322,14 @@ int main(int argc, char *argv[])
             //print the sorted integers on the terminal if output file is not provided
             printf("%d\n", input_array[j]);
         }
-		
-	}
+
+    }
 
     if(arg_filename == 1)
     {
         printf("Sorted and Stored in %s \n",outputfilename);
         fclose(output);
-    }  
+    }
 }
 
 
