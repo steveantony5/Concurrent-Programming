@@ -2,12 +2,41 @@
             Includes
 ***********************************/
 #include "main.h"
-
+#include <sys/resource.h> 
+ #include <sys/time.h> 
+ #include <unistd.h> 
 /**********************************
         Main Function
 **********************************/
 int main(int argc, char *argv[])
 {
+    struct rlimit rl;
+    // First get the limit on memory 
+   getrlimit (RLIMIT_AS, &rl); 
+  
+   printf("\n Default value is : %lld\n", (long long int)rl.rlim_cur); 
+   printf("\n Default value is : %lld\n", (long long int)rl.rlim_max); 
+
+   // Change the limit 
+   rl.rlim_cur = 500000000; 
+   rl.rlim_max = 500000000; 
+  
+   // Now call setrlimit() to set the  
+   // changed value. 
+   setrlimit (RLIMIT_AS, &rl); 
+  
+  
+  setrlimit (RLIMIT_DATA, &rl); 
+   // Again get the limit and check 
+  // getrlimit (RLIMIT_AS, &rl); 
+
+   //getrlimit (RLIMIT_AS, &rl); 
+
+   //RLIMIT_DATA
+  
+ //  printf("\n Default value now is : %lld\n", (long long int)rl.rlim_cur); 
+  
+
     int c;
 	FILE *input, *output;
     char * line = NULL;	

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -g -IIncludes/
+CFLAGS = -Wall -Werror -g -IIncludes/ 
 OP = mysort
 
 vpath %.c Source/
