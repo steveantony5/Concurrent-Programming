@@ -19,52 +19,26 @@ void* bucket_sort(void* arg)
     struct thread_args_bucket *args = (struct thread_args_bucket *) arg;
     int32_t id = args->local_thread_id;
 
+    //getting the start time of algorithm execution
     pthread_barrier_wait(&bar);
     if(id==1)
     {
         printf("Started timer\n");
         clock_gettime(CLOCK_MONOTONIC,&start);
     }
-    pthread_barrier_wait(&bar);
 
-    int divider_bucket = args->divider;
+    //poping the values from the structure argument
+    int32_t divider_bucket = args->divider;
+    int32_t min_index = args->low_index;
+    int32_t max_index = args->high_index;
 
-    int j;
-
-
-    int32_t min_index, max_index, range;
-    if(id != total_threads)
-    {
-      range = (args->total_elts / total_threads);
-      //printf("range %d\n",range);
-
-      min_index = ((id -1) * (range)) ;
-      max_index = min_index + range -1;
-
-      //printf("min %d\n",min_index);
-      //printf("max %d\n",max_index);
-    }
-    else
-    {
-      range = (args->total_elts / total_threads);
-      //printf("range %d\n",range);
-
-      min_index = ((id -1) * (range)) ;
-      max_index = args->total_elts -1;
-
-      //printf("min %d\n",min_index);
-      //printf("max %d\n",max_index);
-    }
-
-
-
-
+    //inserting the elements into bucket
+    int j = 0;
     for(int i = min_index; i <= (max_index); i++)
     {
 
         j = floor( (args->input_array)[i] / divider_bucket );
 
-        
         pthread_mutex_lock(&lock);
         B[j].insert(((args->input_array)[i]));
         pthread_mutex_unlock(&lock);
@@ -74,7 +48,7 @@ void* bucket_sort(void* arg)
     return NULL;
 }
 
-
+/*function to find max value in an array*/
 int32_t max_value(int32_t input_array[],int32_t total_elts)
 {
     int32_t max_value = 0;
@@ -86,11 +60,10 @@ int32_t max_value(int32_t input_array[],int32_t total_elts)
         }
     }
 
-    //printf("Max value is %d\n",max_value);
-
     return  max_value;
 }
 
+/*Function to find bucket divider*/
 int32_t bucket_divider(int32_t arr[], int32_t size, int32_t threads)
 {
   //variables

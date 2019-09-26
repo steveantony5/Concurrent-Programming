@@ -28,9 +28,11 @@ struct thread_args_bucket
 {
     int32_t divider;
     int32_t *input_array;
-    int32_t bucket_no;
     int32_t local_thread_id;
     int32_t total_elts;
+    int32_t low_index;
+    int32_t high_index;
+
 };
 
 /***********************************
@@ -42,6 +44,8 @@ extern std::vector <std::multiset <int32_t> > B;
 extern pthread_barrier_t bar;
 extern pthread_mutex_t lock;
 extern int32_t total_threads;
+
+
 /***********************************
         Function Declarations
 ***********************************/

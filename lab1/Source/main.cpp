@@ -9,7 +9,7 @@ using namespace std;
 /**********************************
           GLOBALS 
 **********************************/
-//Bucket
+//Bucket vector of multisets
 vector <multiset <int32_t> > B;
 
 pthread_barrier_t bar;
@@ -54,8 +54,6 @@ int main(int argc, char *argv[])
     static struct option long_options[] =
     {
       /* These options set a flag. */
-
-
       {"name",no_argument,0,'n'},
       /* These options don’t set a flag.
          We distinguish them by their indices. */
@@ -75,19 +73,20 @@ int main(int argc, char *argv[])
                 printf("\nSteve Antony Xavier Kennedy\n");
                 exit(1);
                 break;
+
             case 'o':
                 strcpy(outputfilename,optarg);
                 printf ("outputfilename = %s\n",outputfilename);
                 arg_filename = 1;
                 break;
+
             case 't':
                 total_threads = atoi(optarg);
-                
                 break;
+
             case 'a':
-                printf("option -algos %s\n",optarg);
                 strcpy(algos,optarg);
-                printf("algos = %s\n",algos);
+                printf("algorithm = %s\n",algos);
                 if(strcmp(algos,"bucket") == 0)
                 {
                     bucket = 1;
@@ -112,8 +111,8 @@ int main(int argc, char *argv[])
     printf("Threads = %d\n",total_threads);
 
 
+    //initializing the barrier
     pthread_barrier_init(&bar, NULL, total_threads);
-
 
     printf ("inputfilename = %s\n",inputfilename);
 
@@ -157,14 +156,12 @@ int main(int argc, char *argv[])
     free(line_1);
     fclose(input);
 
-    printf("Unsorted array formed from input file\n");
-
     printf("Total elements %d\n",total_elts);
-    printf("Total threads %d\n",total_threads);
-    struct thread_task task[total_threads];
+
 
     if(fj == 1)
     {
+        struct thread_task task[total_threads];
 
         printf("FORK JOIN MODEL : Merge sort\n");
         for (int i = 0; i < total_threads; i++)
@@ -246,7 +243,7 @@ int main(int argc, char *argv[])
 
     if(bucket == 1)
     {
-        printf("BUCKET sort\n");
+        printf("LOCKING BUCKET SORTING\n");
 
 
 
@@ -264,14 +261,37 @@ int main(int argc, char *argv[])
                     Creating threads
         ****************************************************/
         pthread_t threads[total_threads];
+        int32_t min_index, max_index, range;
 
         for (int32_t i = 0; i < total_threads; i++)
         {
             arg[i].divider = divider;
             arg[i].input_array = input_array;
-            arg[i].bucket_no = i;
             arg[i].local_thread_id = i+1;
             arg[i].total_elts = total_elts;
+
+
+            range = (total_elts / total_threads);
+            int id = i+1;
+
+            if(id != (total_threads))
+            {
+              
+
+              min_index = ((id -1) * (range)) ;
+              max_index = min_index + range -1;
+
+            }
+            else
+            {
+
+              min_index = ((id -1) * (range)) ;
+              max_index = total_elts -1;
+
+            }
+            arg[i].low_index = min_index;
+            arg[i].high_index = max_index;
+
 
             if(!(pthread_create(&threads[i], NULL, bucket_sort, (void*)&arg[i]) == 0))
             {
@@ -297,6 +317,8 @@ int main(int argc, char *argv[])
 
        int32_t k=0;
        int32_t bucket_elts = B.size();
+
+       //coping the elements from bucket back to input array
         for(int32_t i =0; i< bucket_elts; i++)
         {
             for(std::multiset<int32_t>::iterator j=B[i].begin();j != B[i].end();++j)
@@ -308,7 +330,6 @@ int main(int argc, char *argv[])
         }
 
         clock_gettime(CLOCK_MONOTONIC,&end_time);
-        printf("\n");
 
         unsigned long long elapsed_ns;
         elapsed_ns = (end_time.tv_sec-start.tv_sec)*1000000000 + (end_time.tv_nsec-start.tv_nsec);
@@ -318,6 +339,8 @@ int main(int argc, char *argv[])
 
     }
 
+
+    //destroy the barrier
     pthread_barrier_destroy(&bar);
 
     printf("**********Sorted array*****************\n");

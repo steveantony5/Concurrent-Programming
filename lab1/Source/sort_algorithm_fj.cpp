@@ -90,6 +90,7 @@ void* merge_Sort(void* arg)
     struct thread_task *tsk = (struct thread_task *) arg;
     int32_t id = tsk->local_thread_id;
 
+    //barrier to get start time of algorithm
     pthread_barrier_wait(&bar);
     if(id==1)
     {
@@ -97,7 +98,7 @@ void* merge_Sort(void* arg)
         clock_gettime(CLOCK_MONOTONIC,&start);
     }
 
-    pthread_barrier_wait(&bar);
+    //getting the low and high index of the array range which the thread has to sort
     int low = tsk->tsk_low;
     int high = tsk->tsk_high;
 
