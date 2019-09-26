@@ -42,7 +42,7 @@ void* bucket_sort(void* arg)
         pthread_mutex_lock(&lock);
         B[j].insert(((args->input_array)[i]));
         pthread_mutex_unlock(&lock);
-        
+
     }
 
     return NULL;

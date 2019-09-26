@@ -105,7 +105,7 @@ void* merge_Sort(void* arg)
 
     // evaluating mid point
     int mid = low + (high - low) / 2;
-    if (low < high) 
+    if (low < high)
     {
         merge_sort(tsk->input_array,low, mid);
         merge_sort(tsk->input_array,mid + 1, high);

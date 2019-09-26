@@ -19,7 +19,7 @@
 #include <vector>
 #include <cmath>
 #include <array>
-#include <iterator> 
+#include <iterator>
 #include <set>
 #include <algorithm>
 

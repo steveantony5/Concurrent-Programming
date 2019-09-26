@@ -7,7 +7,7 @@
 using namespace std;
 
 /**********************************
-          GLOBALS 
+          GLOBALS
 **********************************/
 //Bucket vector of multisets
 vector <multiset <int32_t> > B;
@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
 
             if(id != (total_threads))
             {
-              
+
 
               min_index = ((id -1) * (range)) ;
               max_index = min_index + range -1;
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
                 printf("Error on creating threads\n");
                 exit(1);
             }
-            
+
             #if DEBUG
             printf("creating thread %d\n",i);
             #endif
@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
         for (int32_t i = 0; i < total_threads; i++)
         {
             pthread_join(threads[i], NULL);
-            
+
             #if DEBUG
             printf("Joining thread %d\n",i);
             #endif
