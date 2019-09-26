@@ -3,11 +3,13 @@
 ***********************************/
 #include "../Includes/main.h"
 
+#define DEBUG 0
 using namespace std;
 
-static int total_threads = 0;
-static int32_t total_elts;
-
+/**********************************
+          GLOBALS 
+**********************************/
+//Bucket
 vector <multiset <int32_t> > B;
 
 pthread_barrier_t bar;
@@ -16,6 +18,12 @@ struct timespec end_time;
 
 pthread_mutex_t lock;
 
+int total_threads = 1;
+/**********************************
+           Locals
+**********************************/
+
+static int32_t total_elts;
 /**********************************
         Main Function
 **********************************/
@@ -74,7 +82,7 @@ int main(int argc, char *argv[])
                 break;
             case 't':
                 total_threads = atoi(optarg);
-                printf("Threads = %d\n",total_threads);
+                
                 break;
             case 'a':
                 printf("option -algos %s\n",optarg);
@@ -88,6 +96,11 @@ int main(int argc, char *argv[])
                 {
                     fj = 1;
                 }
+                else
+                {
+                    printf("Choose a sorting algorithm\n");
+                    exit(1);
+                }
 
                 break;
             default:
@@ -95,6 +108,9 @@ int main(int argc, char *argv[])
                 exit(1);
         }
     }
+
+    printf("Threads = %d\n",total_threads);
+
 
     pthread_barrier_init(&bar, NULL, total_threads);
 
@@ -171,7 +187,9 @@ int main(int argc, char *argv[])
             task[i].tsk_local_id = i;
             task[i].input_array = input_array;
 
-            //printf("task[%d] %d %d\n",i,task[i].tsk_low,task[i].tsk_high);
+            #if DEBUG
+            printf("task[%d] %d %d\n",i,task[i].tsk_low,task[i].tsk_high);
+            #endif
 
         }
 
@@ -189,22 +207,30 @@ int main(int argc, char *argv[])
                 printf("Error on creating threads\n");
                 exit(1);
             }
-            //printf("creating thread %d\n",i);
+            #if DEBUG
+            printf("creating thread %d\n",i);
+            #endif
         }
 
         // joining all threads
         for (int i = 0; i < total_threads; i++)
         {
             pthread_join(threads[i], NULL);
-            //printf("Joining thread %d\n",i);
+            #if DEBUG
+            printf("Joining thread %d\n",i);
+            #endif
         }
+
 
         for (int i = 1; i < total_threads; i++)
         {
 
             int mid = task[i-1].tsk_high ;
 
-            //printf("merging mid %d high %d\n", mid,task[i].tsk_high);
+            #if DEBUG
+            printf("merging mid %d high %d\n", mid,task[i].tsk_high);
+            #endif
+
             merge(task[i].input_array,0, mid, task[i].tsk_high);
 
         }
@@ -225,18 +251,14 @@ int main(int argc, char *argv[])
 
 
         struct thread_args_bucket arg[total_threads];
-
-
         /****************************************************
                 Find the maximum element in the input
         ****************************************************/
 
         int32_t divider = bucket_divider(input_array,total_elts,total_threads);
+
+        //resizing the bucket based on the number of threads
         B.resize(total_threads);
-
-
-
-
 
         /****************************************************
                     Creating threads
@@ -256,18 +278,21 @@ int main(int argc, char *argv[])
                 printf("Error on creating threads\n");
                 exit(1);
             }
-            //printf("creating thread %d\n",i);
+            
+            #if DEBUG
+            printf("creating thread %d\n",i);
+            #endif
 
         }
-
-
-
 
         // joining all threads
         for (int32_t i = 0; i < total_threads; i++)
         {
             pthread_join(threads[i], NULL);
-            //printf("Joining thread %d\n",i);
+            
+            #if DEBUG
+            printf("Joining thread %d\n",i);
+            #endif
         }
 
        int32_t k=0;
@@ -278,7 +303,6 @@ int main(int argc, char *argv[])
             {
 
                 input_array[k] = *j;
-                //cout << *j << " ";
                 k++;
             }
         }
@@ -292,8 +316,9 @@ int main(int argc, char *argv[])
         double elapsed_s = ((double)elapsed_ns)/1000000000.0;
         printf("Elapsed (s): %lf\n",elapsed_s);
 
-
     }
+
+    pthread_barrier_destroy(&bar);
 
     printf("**********Sorted array*****************\n");
 

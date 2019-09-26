@@ -24,6 +24,8 @@
 #include <set>
 #include <algorithm>
 
+
+/* Structure to be sent to the thread handler of merge sort*/
 struct thread_task
 {
     int32_t *input_array;
@@ -33,12 +35,12 @@ struct thread_task
     int32_t local_thread_id;
 };
 
-
+/***********************************
+        Global Declarations
+***********************************/
 extern struct timespec start;
 extern struct timespec end_time;
 extern std::vector <std::multiset <int32_t> > B;
-
-
 extern pthread_barrier_t bar;
 
 /***********************************
@@ -67,6 +69,10 @@ return      : error/success
 ***********************************/
 int merge(int32_t input[], int32_t low, int32_t middle, int32_t high);
 
+
+/**********************************
+  Thread handler for merge sort
+***********************************/
 void* merge_Sort(void* arg) ;
 
 #endif

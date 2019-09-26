@@ -1,4 +1,9 @@
 /***********************************
+  Reference: https://www.dyclassroom.com/sorting-algorithm/bucket-sort
+***********************************/
+
+
+/***********************************
             Includes
 ***********************************/
 #include "../Includes/sort_algorithm_bucket.h"
@@ -6,6 +11,68 @@
 /***********************************
         Function Definitions
 ***********************************/
+
+
+// thread function for multi-threading
+void* bucket_sort(void* arg)
+{
+    struct thread_args_bucket *args = (struct thread_args_bucket *) arg;
+    int32_t id = args->local_thread_id;
+
+    pthread_barrier_wait(&bar);
+    if(id==1)
+    {
+        printf("Started timer\n");
+        clock_gettime(CLOCK_MONOTONIC,&start);
+    }
+    pthread_barrier_wait(&bar);
+
+    int divider_bucket = args->divider;
+
+    int j;
+
+
+    int32_t min_index, max_index, range;
+    if(id != total_threads)
+    {
+      range = (args->total_elts / total_threads);
+      //printf("range %d\n",range);
+
+      min_index = ((id -1) * (range)) ;
+      max_index = min_index + range -1;
+
+      //printf("min %d\n",min_index);
+      //printf("max %d\n",max_index);
+    }
+    else
+    {
+      range = (args->total_elts / total_threads);
+      //printf("range %d\n",range);
+
+      min_index = ((id -1) * (range)) ;
+      max_index = args->total_elts -1;
+
+      //printf("min %d\n",min_index);
+      //printf("max %d\n",max_index);
+    }
+
+
+
+
+    for(int i = min_index; i <= (max_index); i++)
+    {
+
+        j = floor( (args->input_array)[i] / divider_bucket );
+
+        
+        pthread_mutex_lock(&lock);
+        B[j].insert(((args->input_array)[i]));
+        pthread_mutex_unlock(&lock);
+        
+    }
+
+    return NULL;
+}
 
 
 int32_t max_value(int32_t input_array[],int32_t total_elts)
@@ -18,6 +85,7 @@ int32_t max_value(int32_t input_array[],int32_t total_elts)
             max_value = input_array[m];
         }
     }
+
     //printf("Max value is %d\n",max_value);
 
     return  max_value;
@@ -38,39 +106,4 @@ int32_t bucket_divider(int32_t arr[], int32_t size, int32_t threads)
   //printf("Divider %d\n",divider_l);
 
   return divider_l;
-}
-
-// thread function for multi-threading
-void* bucket_sort(void* arg)
-{
-    struct thread_args_bucket *args = (struct thread_args_bucket *) arg;
-    int32_t id = args->local_thread_id;
-
-    pthread_barrier_wait(&bar);
-    if(id==1)
-    {
-        printf("Started timer\n");
-        clock_gettime(CLOCK_MONOTONIC,&start);
-    }
-    pthread_barrier_wait(&bar);
-
-    int divider_bucket = args->divider;
-
-    int j;
-
-    for(int i = 0; i < args->total_elts; i++)
-    {
-
-        j = floor( (args->input_array)[i] / divider_bucket );
-
-        if(args->bucket_no == j)
-        {
-            pthread_mutex_lock(&lock);
-            B[j].insert(((args->input_array)[i]));
-            pthread_mutex_unlock(&lock);
-        }
-    }
-
-
-    return NULL;
 }

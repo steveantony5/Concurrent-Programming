@@ -1,6 +1,6 @@
 /**********************************
-    Learned Merge sort from https://www.youtube.com/watch?v=7LN9z140U90
-    and implemented it
+    Reference: https://www.geeksforgeeks.org/merge-sort/
+               https://stackoverflow.com/questions/52767944/merge-sort-with-pthreads-in-c
 ***********************************
             Includes
 ***********************************/
@@ -104,7 +104,8 @@ void* merge_Sort(void* arg)
 
     // evaluating mid point
     int mid = low + (high - low) / 2;
-    if (low < high) {
+    if (low < high) 
+    {
         merge_sort(tsk->input_array,low, mid);
         merge_sort(tsk->input_array,mid + 1, high);
         merge(tsk->input_array,low, mid, high);

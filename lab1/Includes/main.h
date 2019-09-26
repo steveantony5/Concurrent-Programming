@@ -7,10 +7,5 @@
 #include "sort_algorithm_fj.h"
 #include "sort_algorithm_bucket.h"
 
-/***********************************
-            Globals
-***********************************/
-
-
 
 #endif

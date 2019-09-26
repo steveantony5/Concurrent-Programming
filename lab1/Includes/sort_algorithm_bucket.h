@@ -23,7 +23,7 @@
 #include <set>
 #include <algorithm>
 
-
+/* Structure to be sent to the thread handler of bucket sort*/
 struct thread_args_bucket
 {
     int32_t divider;
@@ -33,24 +33,37 @@ struct thread_args_bucket
     int32_t total_elts;
 };
 
-
+/***********************************
+        Global Declarations
+***********************************/
 extern struct timespec start;
 extern struct timespec end_time;
 extern std::vector <std::multiset <int32_t> > B;
-
-
 extern pthread_barrier_t bar;
 extern pthread_mutex_t lock;
-
+extern int32_t total_threads;
 /***********************************
         Function Declarations
 ***********************************/
-
-
-
+/*********************************
+Function : max_value
+Parameters : Input array and size of the array
+Description : Function to determine the maximum value in the array
+Return : returns the max value
+**********************************/
 int32_t max_value(int32_t [],int32_t );
-int32_t bucket_creation(int [], int , int );
+
+/*********************************
+Thread handler for buck sort
+**********************************/
 void* bucket_sort(void* arg);
+
+/*********************************
+Function : bucket_divider
+Parameters : Input array, size of the array and number of threads
+Description : Function to determine divisor to determine each bucket's range
+Return : returns the divider
+**********************************/
 int32_t bucket_divider(int arr[], int size, int threads);
 
 #endif
