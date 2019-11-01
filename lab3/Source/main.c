@@ -142,8 +142,6 @@ int main(int argc, char *argv[])
     merge(input_array, 0, (total_elts/2), total_elts-1);
 
 
-    
-
 	printf("**********Sorted array*****************\n");
 
     //if output file name is provided as command line argument
