@@ -17,7 +17,7 @@ using namespace std;
 #endif
 
 
-#define NO_OF_NODES (20000)
+int64_t NO_OF_NODES;
 
 struct pair_t
 {
@@ -62,7 +62,7 @@ struct timespec end_time;
 
 
 #if HANDOVER_LOCKING
-bool insert_node(BST **root, int64_t value)
+bool insert_node(BST **root, int64_t key,int64_t value)
 {
 	pthread_mutex_lock(&lock);
 	if(*root == NULL)
@@ -89,14 +89,14 @@ bool insert_node(BST **root, int64_t value)
 	//printf("cur locked 1\n");
 	while(1)
 	{
-		if(cur->value > value)
+		if(cur->key > key)
 		{
 			if(cur->LC == NULL)
 			{
 				BST *new_child = (BST *)malloc(sizeof(BST));
 				if(new_child != NULL)
 				{
-					new_child->key = 0;
+					new_child->key = key;
 					new_child->value = value;
 					new_child->LC = NULL;
 					new_child->RC = NULL;
@@ -116,14 +116,14 @@ bool insert_node(BST **root, int64_t value)
 			}
 		}
 
-		else if(cur->value < value)
+		else if(cur->key < key)
 		{
 			if(cur->RC == NULL)
 			{
 				BST *new_child = (BST *)malloc(sizeof(BST));
 				if(new_child != NULL)
 				{
-					new_child->key = 0;
+					new_child->key = key;
 					new_child->value = value;
 					new_child->LC = NULL;
 					new_child->RC = NULL;
@@ -142,27 +142,14 @@ bool insert_node(BST **root, int64_t value)
 				//printf("cur locked 7\n");
 			}
 		}
-		else if(cur->value == value)
+		else if(cur->key == key)
 		{
-			BST *new_child = (BST *)malloc(sizeof(BST));
-				if(new_child != NULL)
-				{
-					new_child->key = 0;
-					new_child->value = value;
-					new_child->LC = NULL;
-					new_child->RC = NULL;
-					cur->RC = new_child;
-					pthread_mutex_unlock(&(cur->node_lock));
-					//printf("cur ulocked 5\n");
-					return true;
-				}
-
-			//printf("Abort as value already exists\n");
+			cur->value = value;
 			pthread_mutex_unlock(&(cur->node_lock));
-			//printf("cur ulocked 8\n");
-			return false;
-
+			//printf("cur ulocked 5\n");
+			return true;
 		}
+
 
 	}
 }
@@ -172,7 +159,7 @@ bool get_node(BST *root, int64_t key)
 	pthread_mutex_lock(&(root->node_lock));
     while (root != NULL) 
     { 
-        if (key > root->value) 
+        if (key > root->key) 
         {
         	pthread_mutex_unlock(&(root->node_lock));
             root = root->RC; 
@@ -181,7 +168,7 @@ bool get_node(BST *root, int64_t key)
            	 pthread_mutex_lock(&(root->node_lock));
         }
   
-        else if (key < root->value) 
+        else if (key < root->key) 
         {
         	pthread_mutex_unlock(&(root->node_lock));
             root = root->LC; 
@@ -238,7 +225,7 @@ void in_order_traversal(BST *root,int thread)
 
 
 
-bool insert_node(BST **root, int64_t value)
+bool insert_node(BST **root, int64_t key, int64_t value)
 {
 	//printf("cur locked 1\n");
 	pthread_rwlock_wrlock(&lock);
@@ -270,14 +257,14 @@ bool insert_node(BST **root, int64_t value)
 	
 	while(1)
 	{
-		if(cur->value > value)
+		if(cur->key > key)
 		{
 			if(cur->LC == NULL)
 			{
 				BST *new_child = (BST *)malloc(sizeof(BST));
 				if(new_child != NULL)
 				{
-					new_child->key = 0;
+					new_child->key = key;
 					new_child->value = value;
 					new_child->LC = NULL;
 					new_child->RC = NULL;
@@ -301,14 +288,14 @@ bool insert_node(BST **root, int64_t value)
 			}
 		}
 
-		else if(cur->value < value)
+		else if(cur->key < key)
 		{
 			if(cur->RC == NULL)
 			{
 				BST *new_child = (BST *)malloc(sizeof(BST));
 				if(new_child != NULL)
 				{
-					new_child->key = 0;
+					new_child->key = key;
 					new_child->value = value;
 					new_child->LC = NULL;
 					new_child->RC = NULL;
@@ -331,13 +318,14 @@ bool insert_node(BST **root, int64_t value)
 				//printf("cur locked 7\n");
 			}
 		}
-		else if(cur->value == value)
+		else if(cur->key == key)
 		{
+			cur->value = value;
 			//printf("Abort as value already exists\n");
 			//printf("cur ulocked 11 %ld\n",cur->value);
 			pthread_rwlock_unlock(&(cur->node_lock));
 			//printf("cur ulocked 8\n");
-			return false;
+			return true;
 		}
 	}
 }
@@ -347,7 +335,7 @@ bool get_node(BST *root, int64_t key)
 	pthread_rwlock_rdlock(&(root->node_lock));
     while (root != NULL) 
     { 
-        if (key > root->value) 
+        if (key > root->key) 
         {
         	pthread_rwlock_unlock(&(root->node_lock));
             root = root->RC; 
@@ -356,7 +344,7 @@ bool get_node(BST *root, int64_t key)
            	 pthread_rwlock_rdlock(&(root->node_lock));
         }
   
-        else if (key < root->value) 
+        else if (key < root->key) 
         {
         	pthread_rwlock_unlock(&(root->node_lock));
             root = root->LC; 
@@ -430,7 +418,7 @@ void* handler_insert(void* arg)
 
    for(int64_t i=1,j = key; i< NO_OF_NODES; i++, j++)
 	{
-		insert_node(&root,j);
+		insert_node(&root,j,rand());
 	}
 	printf("insert completed for %ld \n",pthread_self());
 
@@ -444,7 +432,7 @@ void* handler_insert_high_contention(void* arg)
 
    for(int64_t i=1; i< NO_OF_NODES; i++)
 	{
-		insert_node(&root,(i % 10));
+		insert_node(&root,(i % 10),rand());
 	}
 	printf("insert completed for %ld \n",pthread_self());
 
@@ -506,6 +494,7 @@ void* handler_get(void* arg)
 
 int main(int argc, char *argv[])
 {
+
 	if(HANDOVER_LOCKING)
 	{
 		printf("\n\nHANDOVER LOCKING\n\n");
@@ -525,10 +514,12 @@ int main(int argc, char *argv[])
 	uint8_t traverse_threads = total_threads;
 	uint8_t get_threads = total_threads;
 
+	NO_OF_NODES = atoi(argv[3]);
+
 
 	if(strcmp(argv[1],"LOW_CONTENTION") == 0)
 	{
-		insert_node(&root,0);
+		insert_node(&root,0,rand());
 		int64_t seed_value = -300000;
 		printf("Testcase for low contention\n");
 
@@ -553,7 +544,7 @@ int main(int argc, char *argv[])
 		unsigned long long elapsed_ns;
         elapsed_ns = (end_time.tv_sec-start.tv_sec)*1000000000 + (end_time.tv_nsec-start.tv_nsec);
         double elapsed_s = ((double)elapsed_ns)/1000000000.0;
-        printf("Total Time taken for %d threads insering %d elements each(s): %lf\n\n\n",total_threads ,NO_OF_NODES,elapsed_s);
+        printf("Total Time taken for %d threads insering %ld elements each(s): %lf\n\n\n",total_threads ,NO_OF_NODES,elapsed_s);
 
         /*******************************************/
 
@@ -620,14 +611,14 @@ int main(int argc, char *argv[])
 
 	else if(strcmp(argv[1],"HIGH_CONTENTION") == 0)
 	{
-		insert_node(&root,NO_OF_NODES+1);
+		insert_node(&root,NO_OF_NODES+1,rand());
 		int64_t seed_value = NO_OF_NODES;
 		printf("Testcase for high contention\n");
 
 
 		for(int64_t i=seed_value; i >= 0; i--)
 		{
-			insert_node(&root,i);
+			insert_node(&root,i,rand());
 		}
 
 		printf("Populated a skewed BST to test high contention\n");
@@ -650,7 +641,7 @@ int main(int argc, char *argv[])
         elapsed_ns = (end_time.tv_sec-start.tv_sec)*1000000000 + (end_time.tv_nsec-start.tv_nsec);
         double elapsed_s = ((double)elapsed_ns)/1000000000.0;
         
-        printf("Total Time taken for %d threads insering %d elements each(s): %lf\n\n\n",total_threads ,NO_OF_NODES,elapsed_s);
+        printf("Total Time taken for %d threads insering %ld elements each(s): %lf\n\n\n",total_threads ,NO_OF_NODES,elapsed_s);
 
         /*******************************************/
 
