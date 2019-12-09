@@ -1,15 +1,12 @@
 CC = g++
-CFLAGS = -Wall -pthread -g -IIncludes/ 
-OP = bst
+CFLAGS = -Wall -pthread -g 
 
-vpath %.c Source/
-SRC = bst.c
+handover: 
+	$(CC) $(CFLAGS) -DHANDOVER_LOCKING=1 bst.c -o bst 
 
-OBJ :=$(SRC:.c=.o)
+rwlock: 
+	$(CC) $(CFLAGS) -DHANDOVER_LOCKING=0 bst.c -o bst 
 
-mysort : $(OBJ)  #dependencies
-
-	$(CC) $(CFLAGS) -o $(OP) $(OBJ) 
 
 clean: 
 	rm -f bst *.o

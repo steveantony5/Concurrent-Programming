@@ -12,7 +12,10 @@ using namespace std;
 
 #define MAX_THREADS (20)
 
-#define HANDOVER_LOCKING (0)
+#ifndef HANDOVER_LOCKING
+#define HANDOVER_LOCKING 
+#endif
+
 
 #define NO_OF_NODES (20000)
 
@@ -503,6 +506,14 @@ void* handler_get(void* arg)
 
 int main(int argc, char *argv[])
 {
+	if(HANDOVER_LOCKING)
+	{
+		printf("\n\nHANDOVER LOCKING\n\n");
+	}
+	else
+	{
+		printf("\n\nRW LOCKING\n\n");
+	}
 	pthread_t thread_id_insert[MAX_THREADS];
 
 	pthread_t thread_id_traverse[MAX_THREADS];
