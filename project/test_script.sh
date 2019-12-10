@@ -4,6 +4,9 @@ echo "Generating the executable for Handover Mutex"
 make clean
 make mutex 
 
+echo "Unit test for BST operations"
+./bst UNIT_TEST 1 10000
+
 echo "Kicking the low contention test case"
 
 echo "Mutex Handover locking"
