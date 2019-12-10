@@ -1,3 +1,5 @@
+//Includes
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -11,14 +13,22 @@
 
 using namespace std; 
 
+
+//Macros
 #define MAX_THREADS (100)
 
 #ifndef MUTEX_LOCKING
 #define MUTEX_LOCKING 
 #endif
 
-#if MUTEX_LOCKING
+struct pair_t
+{
+	int64_t key;
+	int64_t value;
+};
 
+//Globals
+#if MUTEX_LOCKING
 
 typedef struct BST
 {
@@ -44,6 +54,10 @@ typedef struct BST
 
 #endif
 
+extern int64_t NO_OF_NODES;
+extern BST *root;
+
+//Function definitions
 bool insert_node(BST *cur, int64_t key,int64_t value);
 bool get_node(BST *root, int64_t key);
 void in_order_traversal(BST *root,int thread,int64_t min, int64_t max);
@@ -52,6 +66,3 @@ void* handler_insert_high_contention(void* arg);
 void* handler_get_high_contention(void* arg);
 void* handler_traverse(void* arg);
 void* handler_get(void* arg);
-
-extern int64_t NO_OF_NODES;
-extern BST *root;

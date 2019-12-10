@@ -1,13 +1,10 @@
+//Includes
 #include "bst.h"
 
-
+//Globals
 int64_t NO_OF_NODES;
 
-struct pair_t
-{
-	int64_t key;
-	int64_t value;
-};
+
 
 std::vector<struct pair_t> vec[MAX_THREADS]; 
 
@@ -24,7 +21,19 @@ pthread_rwlock_t lock ;
 
 #endif
 
+
+
+//Functions with mutex handover locking
 #if MUTEX_LOCKING
+/* Insert function of BST
+ This function inserts key value pairs into the BST
+ keys are unique and if a key is inserted which is already present in bst, it just replaces the value
+
+ Parameters:
+ cur - node of the BST
+ key - key to be inserted
+ value - value for the corresponding key
+*/
 bool insert_node(BST *cur, int64_t key,int64_t value)
 {
 	if(cur == NULL)
@@ -110,12 +119,20 @@ bool insert_node(BST *cur, int64_t key,int64_t value)
 		pthread_mutex_unlock(&(cur->node_lock));
 		return true;
 	}
+	return true;
 
 
 }
 
 
+/* Get function of BST
+ This function checks if a key exists in the BST
 
+ Parameters:
+ root - node of the BST
+ key  - key to be checked if it exists
+
+*/
 bool get_node(BST *root, int64_t key)
 {
 	
@@ -158,6 +175,17 @@ bool get_node(BST *root, int64_t key)
 
 }
 
+/* Range query of BST
+ This function copies the key value pairs for which the key is 
+ between the min and max value of the range query
+
+ Parameters:
+ root - node
+ thread - thread number to choose the bucket in the vector 
+ min - minimum of the requested range
+ max - maximum of the requested range
+
+*/
 void in_order_traversal(BST *root,int thread,int64_t min, int64_t max)
 {
 
@@ -195,7 +223,19 @@ void in_order_traversal(BST *root,int thread,int64_t min, int64_t max)
 
 }
 
+//Functions with read write locking
 #else
+
+
+/* Insert function of BST
+ This function inserts key value pairs into the BST
+ keys are unique and if a key is inserted which is already present in bst, it just replaces the value
+
+ Parameters:
+ cur - node of the BST
+ key - key to be inserted
+ value - value for the corresponding key
+*/
 bool insert_node(BST *cur, int64_t key,int64_t value)
 {
 	if(cur == NULL)
@@ -281,11 +321,18 @@ bool insert_node(BST *cur, int64_t key,int64_t value)
 		pthread_rwlock_unlock(&(cur->node_lock));
 		return true;
 	}
-
+	return true;
 
 }
 
+/* Get function of BST
+ This function checks if a key exists in the BST
 
+ Parameters:
+ root - node of the BST
+ key  - key to be checked if it exists
+
+*/
 
 bool get_node(BST *root, int64_t key)
 {
@@ -329,6 +376,17 @@ bool get_node(BST *root, int64_t key)
 
 }
 
+/* Range query of BST
+ This function copies the key value pairs for which the key is 
+ between the min and max value of the range query
+
+ Parameters:
+ root - node
+ thread - thread number to choose the bucket in the vector 
+ min - minimum of the requested range
+ max - maximum of the requested range
+
+*/
 void in_order_traversal(BST *root,int thread, int64_t min, int64_t max)
 {
 
@@ -369,39 +427,43 @@ void in_order_traversal(BST *root,int thread, int64_t min, int64_t max)
 
 #endif
 
-//Divide step of merge sort Algorithm
+/* Thread handlers */
+
+//thread handler for insert thread for low contention scenerio
 void* handler_insert(void* arg)
 {
 
-	printf("insert thread begin for %ld \n",pthread_self());
+	//printf("insert thread begin for %ld \n",pthread_self());
   int64_t key = (int64_t)arg;
 
    for(int64_t i=1,j = key; i< NO_OF_NODES; i++, j++)
 	{
 		insert_node(NULL,j,rand());
 	}
-	printf("insert completed for %ld \n",pthread_self());
+	//printf("insert completed for %ld \n",pthread_self());
 
 	return NULL;
 }
 
+//thread handler for insert thread for high contention scenerio
 void* handler_insert_high_contention(void* arg)
 {
 
-	printf("insert thread begin for %ld \n",pthread_self());
+	//printf("insert thread begin for %ld \n",pthread_self());
 
    for(int64_t i=1; i< NO_OF_NODES; i++)
 	{
 		insert_node(NULL,(i % 10),rand());
 	}
-	printf("insert completed for %ld \n",pthread_self());
+	//printf("insert completed for %ld \n",pthread_self());
 
 	return NULL;
 }
 
+//thread handler for get thread for high contention scenerio
 void* handler_get_high_contention(void* arg)
 {
-	printf("get thread begin for %ld \n",pthread_self());
+	//printf("get thread begin for %ld \n",pthread_self());
 
     for(int64_t i=1; i< NO_OF_NODES; i++)
 	{
@@ -409,15 +471,16 @@ void* handler_get_high_contention(void* arg)
 	}
 
 	
-	printf("get completed for %ld \n",pthread_self());
+	//printf("get completed for %ld \n",pthread_self());
 
 	return NULL;
 
 }
 
+//thread handler for traverse thread for low/high contention scenerio
 void* handler_traverse(void* arg)
 {
-	printf("Traverse thread begin for %ld \n",pthread_self());
+	//printf("Traverse thread begin for %ld \n",pthread_self());
    int64_t thread = (int64_t) arg;
 
    if(root == NULL)
@@ -428,22 +491,22 @@ void* handler_traverse(void* arg)
 
    #if MUTEX_LOCKING
    pthread_mutex_lock(&(root->node_lock));
-   printf("tra locked lock %ld\n",root->value);
 
    #else
    pthread_rwlock_rdlock(&(root->node_lock));
    #endif
 
    in_order_traversal(root,thread,INT_MIN, INT_MAX);
-   printf("Traverse completed for %ld \n",pthread_self());
+   //printf("Traverse completed for %ld \n",pthread_self());
 
    return NULL;
 
 }
 
+//thread handler for get thread for low contention scenerio
 void* handler_get(void* arg)
 {
-	printf("get thread begin for %ld \n",pthread_self());
+	//printf("get thread begin for %ld \n",pthread_self());
   int64_t key = (int64_t)arg;
 
     for(int64_t i=1,j = key; i< 1000; i++, j++)
@@ -452,8 +515,10 @@ void* handler_get(void* arg)
 	}
 
 	
-	printf("get completed for %ld \n",pthread_self());
+	//printf("get completed for %ld \n",pthread_self());
 
 	return NULL;
 
 }
+
+
