@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 		if(testcase == 1)
 		{
 			insert_node(NULL,(NO_OF_NODES*total_threads)/2,rand());
-			int64_t seed_value = NO_OF_NODES;
+			int64_t seed_value = 0;
 			printf("Testcase for low contention\n");
 
 			clock_gettime(CLOCK_MONOTONIC,&start);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
 
 			printf("Test case for simultaneous operation of insertion, get, range query\n");
-			int64_t seed_value = NO_OF_NODES;
+			int64_t seed_value = 0;
 			clock_gettime(CLOCK_MONOTONIC,&start);
 
 			for(int i =0; i<insert_threads; i++)
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 				seed_value += NO_OF_NODES;
 			}
 
-			int64_t seed_get = NO_OF_NODES;
+			int64_t seed_get = 0;
 			for(int i =0; i<get_threads; i++)
 			{
 				pthread_create(&thread_id_get[i], NULL, handler_get, (void *)seed_get);

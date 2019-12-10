@@ -446,7 +446,7 @@ void* handler_get(void* arg)
 	printf("get thread begin for %ld \n",pthread_self());
   int64_t key = (int64_t)arg;
 
-    for(int64_t i=1,j = key; i< 1000; i++, j=j+2)
+    for(int64_t i=1,j = key; i< 1000; i++, j++)
 	{
 		get_node(root,j);
 	}
